@@ -1,8 +1,14 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Bloqueo inicial: no publicar acceso a datos hasta implementar
-    // autenticación de personal y un canal validado para clientes.
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == 'aF0G4M2NnBZacEJ7mt2SilxEMmu2';
+    }
+    // Solo la gerencia puede consultar y administrar solicitudes por ahora.
+    // La recepción pública desde QR requiere protección antiabuso antes de habilitarla.
+    match /solicitudes/{id} {
+      allow read, create, update, delete: if isAdmin();
+    }
     match /{document=**} {
       allow read, write: if false;
     }
