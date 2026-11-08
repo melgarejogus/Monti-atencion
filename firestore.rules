@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Bloqueo inicial: no publicar acceso a datos hasta implementar
+    // autenticación de personal y un canal validado para clientes.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
