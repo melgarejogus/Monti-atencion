@@ -9,6 +9,10 @@ service cloud.firestore {
     match /solicitudes/{id} {
       allow read, create, update, delete: if isAdmin();
     }
+    // Perfiles administrados exclusivamente por gerencia.
+    match /configuracion/mozos {
+      allow read, write: if isAdmin();
+    }
     match /{document=**} {
       allow read, write: if false;
     }
