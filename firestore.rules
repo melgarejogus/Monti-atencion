@@ -10,6 +10,27 @@ service cloud.firestore {
       allow read, create, update, delete: if isAdmin();
     }
     // Perfiles administrados exclusivamente por gerencia.
+    function isBar() {
+      return request.auth != null && request.auth.uid == 'PUoMTmxvPUUQhaPcfChBlVloGOp1';
+    }
+    match /llamados/{id} {
+      allow read: if isAdmin() || isBar();
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['mesa','tipo','detalle','estado','creadoEn','origen'])
+        && request.resource.data.mesa is int
+        && request.resource.data.mesa >= 1 && request.resource.data.mesa <= 999
+        && request.resource.data.tipo == 'mozo'
+        && request.resource.data.detalle is string
+        && request.resource.data.detalle.size() <= 250
+        && request.resource.data.estado == 'Pendiente'
+        && request.resource.data.origen == 'prueba-gerencia'
+        && request.resource.data.creadoEn == request.time;
+      allow update: if (isAdmin() || isBar())
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
+        && ((resource.data.estado == 'Pendiente' && request.resource.data.estado == 'En atención')
+        || (resource.data.estado == 'En atención' && request.resource.data.estado == 'Resuelto'));
+      allow delete: if isAdmin();
+    }
     match /configuracion/mozos {
       allow read, write: if isAdmin();
     }
